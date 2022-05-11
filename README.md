@@ -1,4 +1,5 @@
 # EducationforLife
+Ejemplo#Ejemplo Practico
 <div id="book">
   <canvas id="pageflip-canvas"></canvas>
   <div id="pages">
@@ -71,3 +72,43 @@ function mouseUpHandler( event ) {
     flips[i].dragging = false;
   }
 }
+function render() {
+  // Reset all pixels in the canvas
+  context.clearRect( 0, 0, canvas.width, canvas.height );
+
+  for( var i = 0, len = flips.length; i < len; i++ ) {
+    var flip = flips[i];
+
+    if( flip.dragging ) {
+      flip.target = Math.max( Math.min( mouse.x / PAGE_WIDTH, 1 ), -1 );
+    }
+
+    // Ease progress towards the target value
+    flip.progress += ( flip.target - flip.progress ) * 0.2;
+
+    // If the flip is being dragged or is somewhere in the middle
+    // of the book, render it
+    if( flip.dragging || Math.abs( flip.progress ) < 0.997 ) {
+      drawFlip( flip );
+    }
+
+  }
+// Determines the strength of the fold/bend on a 0-1 range
+var strength = 1 - Math.abs( flip.progress );
+
+// Width of the folded paper
+var foldWidth = ( PAGE_WIDTH * 0.5 ) * ( 1 - flip.progress );
+
+// X position of the folded paper
+var foldX = PAGE_WIDTH * flip.progress + foldWidth;
+
+// How far outside of the book the paper is bent due to perspective
+var verticalOutdent = 20 * strength;
+
+// The maximum widths of the three shadows used
+var paperShadowWidth = (PAGE_WIDTH*0.5) * Math.max(Math.min(1 - flip.progress, 0.5), 0);
+var rightShadowWidth = (PAGE_WIDTH*0.5) * Math.max(Math.min(strength, 0.5), 0);
+var leftShadowWidth = (PAGE_WIDTH*0.5) * Math.max(Math.min(strength, 0.5), 0);
+
+// Mask the page by setting its width to match the foldX
+flip.page.style.width = Math.max(foldX, 0) + "px";
